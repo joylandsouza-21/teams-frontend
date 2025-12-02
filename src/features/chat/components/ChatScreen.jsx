@@ -108,9 +108,8 @@ export default function ChatScreen({
     }, [addNewChat])
 
     const handleGroupNameUpdate = async () => {
-        console.log( auth?.token)
-        const res = await updateConversationApi({ token: auth?.token, conversationId: activeChat?.id, body: {name: newName}})
-        if (res?.status === 200 ){
+        const res = await updateConversationApi({ token: auth?.token, conversationId: activeChat?.id, body: { name: newName } })
+        if (res?.status === 200) {
             console.log('Group name Updated successfully')
             fetchAllConversations()
         }
@@ -220,7 +219,7 @@ export default function ChatScreen({
 
     // 🔹 MOVE AddPeopleDropdown TO PARENT LEVEL
     function AddPeopleDropdown() {
-        const activeChatUserIds = activeChat.members.map(m=>m.id)
+        const activeChatUserIds = activeChat.members.map(m => m.id)
         const allUsers = users.filter((item) => item.id !== currentUserId && !activeChatUserIds.includes(item.id) && !selectedUsers.includes(item))
 
         const filteredUsers = allUsers.filter(
