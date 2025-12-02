@@ -3,7 +3,7 @@ import { MessageCircleMore, Phone } from "lucide-react";
 
 export default function Sidebar() {
   return (
-    <div className="w-[60px] bg-black text-white flex flex-col gap-4 py-4 border-r border-gray-800">
+    <div className="w-[60px] bg-(--color-primary-background) flex flex-col gap-4 py-4 border-r border-(--border-primary-color)">
 
       {/* ✅ CHAT */}
       <NavLink
@@ -13,8 +13,8 @@ export default function Sidebar() {
            border-l-2 
            ${
              isActive
-               ? "border-purple-500 text-purple-400"
-               : "border-transparent hover:text-purple-400"
+               ? "border-[rgb(var(--color-active))] text-[rgb(var(--color-active))]"
+               : "border-transparent hover:text-[rgb(var(--color-active))]"
            }`
         }
       >
@@ -22,7 +22,11 @@ export default function Sidebar() {
           <>
             <MessageCircleMore
               size={20}
-              className={isActive ? "stroke-purple-500" : ""}
+              className={
+                isActive
+                  ? "text-[rgb(var(--color-active))]"
+                  : ""
+              }
             />
             <span className="text-[10px] leading-none">Chat</span>
           </>
@@ -37,8 +41,8 @@ export default function Sidebar() {
            border-l-2 
            ${
              isActive
-               ? "border-purple-500 text-purple-400"
-               : "border-transparent hover:text-purple-400"
+               ? "border-[rgb(var(--color-active))] text-[rgb(var(--color-active))]"
+               : "border-transparent hover:text-[rgb(var(--color-active))]"
            }`
         }
       >
@@ -46,7 +50,11 @@ export default function Sidebar() {
           <>
             <Phone
               size={20}
-              className={isActive ? "stroke-purple-500" : ""}
+              className={
+                isActive
+                  ? "text-[rgb(var(--color-active))]"
+                  : ""
+              }
             />
             <span className="text-[10px] leading-none">Calls</span>
           </>

@@ -1,1 +1,44 @@
 @import "tailwindcss";
+
+:root {
+  --color-active: 168 85 247;
+  --color-primary-background: #000000;
+  --color-sec-background: #1f1f1f;
+  --color-ter-background: #292929;
+
+  --border-primary-color: #2D2F3A;
+
+  --text-primary-color: white;
+}
+
+body{
+  background-color: var(--color-primary-background);
+  color: var(--text-primary-color);
+}
+
+
+/* ✅ For Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f1f1f;   /* dark track */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;     /* dark thumb */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* ✅ For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #555 #1f1f1f;
+}

@@ -1,0 +1,23 @@
+export const dummyUserData = [
+  { id: 1, name: "Ramesh", email: "ramesh@gmail.com", status: "active" },
+  { id: 2, name: "Suresh", email: "suresh@gmail.com", status: "inactive" },
+  { id: 3, name: "Mahesh", email: "mahesh@gmail.com", status: "active" },
+  { id: 4, name: "Anita", email: "anita@gmail.com", status: "active" },
+  { id: 5, name: "Priya", email: "priya@gmail.com", status: "inactive" },
+  { id: 6, name: "Rahul", email: "rahul@gmail.com", status: "active" },
+  { id: 7, name: "Kiran", email: "kiran@gmail.com", status: "active" },
+  { id: 8, name: "Sunita", email: "sunita@gmail.com", status: "inactive" },
+  { id: 9, name: "Vikram", email: "vikram@gmail.com", status: "active" },
+  { id: 10, name: "Neha", email: "neha@gmail.com", status: "active" },
+
+  { id: 11, name: "Amit", email: "amit@gmail.com", status: "inactive" },
+  { id: 12, name: "Pooja", email: "pooja@gmail.com", status: "active" },
+  { id: 13, name: "Deepak", email: "deepak@gmail.com", status: "inactive" },
+  { id: 14, name: "Kavita", email: "kavita@gmail.com", status: "active" },
+  { id: 15, name: "Rohit", email: "rohit@gmail.com", status: "active" },
+  { id: 16, name: "Sneha", email: "sneha@gmail.com", status: "inactive" },
+  { id: 17, name: "Manoj", email: "manoj@gmail.com", status: "active" },
+  { id: 18, name: "Divya", email: "divya@gmail.com", status: "active" },
+  { id: 19, name: "Naveen", email: "naveen@gmail.com", status: "inactive" },
+  { id: 20, name: "Ishita", email: "ishita@gmail.com", status: "active" },
+];
