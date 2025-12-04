@@ -14,6 +14,6 @@ export const ENDPOINTS = {
   },
 
   MESSAGE: {
-    MESSAGE_HISTORY: (id) => `/conversations/${id}/history`,
+    MESSAGE_HISTORY: (id) => `/messages/${id}/history`,
   },
 };

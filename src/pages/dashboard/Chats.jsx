@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import ChatScreen from "../../features/chat/components/ChatScreen";
+import ChatScreen from "../../features/chat/components/ChatScreen/ChatScreen";
 import ChatSidebar from "../../features/chat/components/ChatSidebar";
 import { generateChatLable } from "../../features/chat/utils/ChatListUtils";
 import { useAuth } from "../../store/auth.context";
 import { getAllUsers } from "../../api/user.api";
 import { getConversationsApi } from "../../api/conversation.api";
+import { useSocket } from "../../store/socket.context";
 
 export default function Chats() {
   const { auth } = useAuth();
+  const { socket } = useSocket();
 
   const currentUserId = auth?.user?.id;
 
@@ -15,8 +17,9 @@ export default function Chats() {
   const [users, setUsers] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [activeChatLabel, setActiveChatLabel] = useState(null);
-  const [addNewChat, setAddNewChat] = useState(false)
-  const [newChatDetails, setNewChatDetails] = useState(null)
+  const [addNewChat, setAddNewChat] = useState(false);
+  const [newChatDetails, setNewChatDetails] = useState(null);
+  const [unreadCounts, setUnreadCounts] = useState({});
 
   useEffect(() => {
     if (!newChatDetails?.members) return;
@@ -96,7 +99,7 @@ export default function Chats() {
     }
 
     if (activeChat) {
-      if (!chats.includes(activeChat)) {
+      if (!chats.some(chat => chat.id === activeChat?.id)) {
         const newActiveChat = chats.find(item => item.type === activeChat.type && areSameMembers(item.members, activeChat.members, currentUserId))
         if (newActiveChat) {
           setActiveChat(newActiveChat)
@@ -104,12 +107,64 @@ export default function Chats() {
           return
         }
       }
+    } else {
+      setActiveChat(chats?.[0])
+      setActiveChatLabel(generateChatLable(chats?.[0], currentUserId))
     }
-    setActiveChat(chats?.[0])
-    setActiveChatLabel(generateChatLable(chats?.[0], currentUserId))
-  }, [chats])
+  }, [chats, activeChat?.id, currentUserId])
 
-  console.log(chats)
+  useEffect(() => {
+    if (!socket) return;
+
+    const onNewChat = ({ conversationId }) => {
+      fetchAllConversations();
+    };
+
+    const onNewBackgroundMessage = ({
+      conversationId,
+      messageId,
+      senderId
+    }) => {
+      if (conversationId !== activeChat?.id) {
+        setUnreadCounts(prev => ({
+          ...prev,
+          [conversationId]: (prev[conversationId] || 0) + 1
+        }));
+      }
+    }
+
+    socket.on("refresh_chat", onNewChat);
+    socket.on("background_message", onNewBackgroundMessage);
+
+    return () => {
+      socket.off("refresh_chat", onNewChat);
+      socket.off("background_message", onNewBackgroundMessage);
+    };
+  }, [socket, activeChat?.id, fetchAllConversations]);
+
+  useEffect(() => {
+    if (!activeChat?.id) return;
+
+    setUnreadCounts((prev) => {
+      const updated = { ...prev };
+      delete updated[activeChat.id];
+      return updated;
+    });
+  }, [activeChat?.id]);
+
+  useEffect(() => {
+    if (!Array.isArray(chats)) return;
+
+    const initialUnread = {};
+
+    chats.forEach(chat => {
+      if (chat.unreadCount > 0) {
+        initialUnread[chat.id] = chat.unreadCount;
+      }
+    });
+
+    setUnreadCounts(initialUnread);
+  }, [chats]);
 
   return (
     <div className="h-full w-full flex flex-row">
@@ -124,6 +179,7 @@ export default function Chats() {
         newChatDetails={newChatDetails}
         setNewChatDetails={setNewChatDetails}
         currentUserId={currentUserId}
+        unreadCounts={unreadCounts}
       />
       <ChatScreen
         chats={chats}

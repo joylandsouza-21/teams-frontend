@@ -13,18 +13,19 @@ export default function ChatSidebar({
   setAddNewChat,
   newChatDetails,
   setNewChatDetails,
-  currentUserId
+  currentUserId,
+  unreadCounts
 
 }) {
 
-  useEffect(()=>{
-    if (!activeChatLabel && activeChat){
+  useEffect(() => {
+    if (!activeChatLabel && activeChat) {
       setActiveChatLabel(generateChatLable(activeChat, currentUserId))
     }
   }, [])
 
   const handleNewChat = () => {
-    setAddNewChat(prev=>!prev)
+    setAddNewChat(prev => !prev)
   }
 
   return (
@@ -45,33 +46,34 @@ export default function ChatSidebar({
         {
           newChatDetails &&
           <ChatListItem
-              key= {newChatDetails.id}
-              item={newChatDetails}
-              label={newChatDetails?.label || 'New Chat'}
-              isActive={activeChat?.id === newChatDetails.id}
-              onClick={() => {
-                setActiveChat(newChatDetails)
-                setActiveChatLabel(newChatDetails?.label || 'New Chat')
-              }}
-            />
+            key={newChatDetails.id}
+            item={newChatDetails}
+            label={newChatDetails?.label || 'New Chat'}
+            isActive={activeChat?.id === newChatDetails.id}
+            onClick={() => {
+              setActiveChat(newChatDetails)
+              setActiveChatLabel(newChatDetails?.label || 'New Chat')
+            }}
+          />
         }
         {chats && chats.length > 0 ? (
           chats.map((item) => {
 
-            const label = generateChatLable(item, currentUserId) 
+            const label = generateChatLable(item, currentUserId)
 
             const isActive = activeChat?.id === item.id;
-
+            
             return (
               <ChatListItem
                 key={item.id}
                 item={item}
                 label={label}
                 isActive={isActive}
+                unreadCount={unreadCounts[item.id]}
                 onClick={() => {
                   setActiveChat(item)
                   setActiveChatLabel(label)
-                  if (addNewChat){
+                  if (addNewChat) {
                     setAddNewChat(false)
                     setNewChatDetails(null)
                   }

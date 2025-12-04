@@ -4,30 +4,82 @@ import {
   Send
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { createNewDirectChatApi, createNewGroupChatApi } from "../../../api/conversation.api";
-import { useAuth } from "../../../store/auth.context";
+import { createNewDirectChatApi, createNewGroupChatApi } from "../../../../api/conversation.api";
+import { useAuth } from "../../../../store/auth.context";
+import { useSocket } from "../../../../store/socket.context";
 
 const EMOJIS = ["😀", "😁", "😂", "🤣", "😊", "😍", "😎", "😢", "😡", "👍", "🙏", "🔥", "🎉", "❤️"];
 
 export default function MessageInput({
-  onSend,
   setChats,
   newChatDetails,
   setAddNewChat,
   setNewChatDetails,
-  fetchAllConversations
+  fetchAllConversations,
+  activeChat,
+  setNewChatMembers
 }) {
   const { auth } = useAuth();
-
-  const [message, setMessage] = useState("");
+  const { socket } = useSocket();
+  
+  const [text, setText] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [files, setFiles] = useState([]);
-
+  
   const fileInputRef = useRef(null);
   const emojiRef = useRef(null);
   const inputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  
+  //  Handle Typing
+  const handleTyping = () => {
+    socket.emit("typing", {
+      conversationId: activeChat.id
+    });
 
-  // ✅ Close emoji picker on outside click
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit("stop_typing", {
+        conversationId: activeChat.id
+      });
+    }, 800);
+  };
+
+  //  Send Message
+  const handleSend = () => {
+    if (!text.trim()) return;
+    socket.emit("send_message", {
+      conversationId: activeChat.id,
+      content: text.trim(),
+      replyTo: null // you can wire reply later
+    });
+
+    setText(""); //  clear input
+  };
+
+  //  Enter to Send
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  //  Stop typing on unmount
+  useEffect(() => {
+    if (!activeChat) return
+    return () => {
+      socket.emit("stop_typing", {
+        conversationId: activeChat.id
+      });
+    };
+  }, [activeChat?.id]);
+
+
+  //  Close emoji picker on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (emojiRef.current && !emojiRef.current.contains(e.target)) {
@@ -39,16 +91,16 @@ export default function MessageInput({
   }, []);
 
 
-  // ✅ Emoji insert
+  //  Emoji insert
   const handleEmojiClick = (emoji) => {
     const input = inputRef.current;
     const start = input.selectionStart;
     const end = input.selectionEnd;
 
     const newText =
-      message.slice(0, start) + emoji + message.slice(end);
+      text.slice(0, start) + emoji + text.slice(end);
 
-    setMessage(newText);
+    setText(newText);
 
     setTimeout(() => {
       input.focus();
@@ -58,29 +110,16 @@ export default function MessageInput({
     setShowEmoji(false);
   };
 
-  // ✅ File attach
+  //  File attach
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
     setFiles((prev) => [...prev, ...selected]);
     e.target.value = null; // reset input
   };
 
-  // ✅ Remove attachment
+  //  Remove attachment
   const removeFile = (index) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // ✅ Send message
-  const handleSend = () => {
-    if (!message.trim() && files.length === 0) return;
-
-    onSend?.({
-      text: message,
-      files,
-    });
-
-    setMessage("");
-    setFiles([]);
   };
 
   const createNewChat = async () => {
@@ -88,7 +127,7 @@ export default function MessageInput({
       if (!newChatDetails || !auth?.token) return;
 
       let body = {};
-      let res = null; // ✅ FIX: declare OUTSIDE
+      let res = null; //  FIX: declare OUTSIDE
 
       if (newChatDetails.type === "direct") {
         const userId = newChatDetails.members?.[0]?.id;
@@ -114,7 +153,7 @@ export default function MessageInput({
         }
 
         body = {
-          name: newChatDetails.name || "", 
+          name: newChatDetails.name || "",
           members
         };
 
@@ -129,7 +168,7 @@ export default function MessageInput({
       }
 
     } catch (err) {
-      console.error("Failed to create chat:", err); // ✅ message fixed
+      console.error("Failed to create chat:", err); //  message fixed
     }
   };
 
@@ -138,15 +177,16 @@ export default function MessageInput({
     if (newChatDetails) {
       // setChats(prev => ([...prev, newChatDetails]))
       createNewChat()
-      setNewChatDetails(null)
-      setAddNewChat(false)
     }
+    setNewChatDetails(null)
+    setAddNewChat(false)
+    setNewChatMembers([])
   }
 
   return (
     <div className="w-full border-t border-gray-700 bg-[#1f1f1f] px-4 py-3 relative">
 
-      {/* ✅ EMOJI PICKER */}
+      {/*  EMOJI PICKER */}
       {showEmoji && (
         <div
           ref={emojiRef}
@@ -165,7 +205,7 @@ export default function MessageInput({
         </div>
       )}
 
-      {/* ✅ FILE PREVIEW */}
+      {/*  FILE PREVIEW */}
       {files.length > 0 && (
         <div className="mb-2 flex gap-2 overflow-x-auto absolute -top-4">
           {files.map((file, i) => (
@@ -182,10 +222,10 @@ export default function MessageInput({
         </div>
       )}
 
-      {/* ✅ INPUT CONTAINER */}
+      {/*  INPUT CONTAINER */}
       <div className="flex items-center gap-2 bg-[#2b2b2b] rounded-full px-4 py-2 shadow-inner border-b-2 border-transparent focus-within:border-[rgb(var(--color-active))] transition-colors duration-200">
 
-        {/* ✅ LEFT ICONS */}
+        {/*  LEFT ICONS */}
         <div className="flex items-center gap-3 text-gray-400">
           <Smile
             className={`cursor-pointer hover:text-[rgb(var(--color-active))] ${showEmoji && 'text-[rgb(var(--color-active))]'}`}
@@ -195,7 +235,7 @@ export default function MessageInput({
             }}
           />
 
-          {/* ✅ FILE INPUT */}
+          {/*  FILE INPUT */}
           <Paperclip
             className={`cursor-pointer hover:text-[rgb(var(--color-active))] `}
             onClick={() => fileInputRef.current.click()}
@@ -209,19 +249,22 @@ export default function MessageInput({
           />
         </div>
 
-        {/* ✅ MESSAGE INPUT */}
+        {/*  MESSAGE INPUT */}
         <input
           ref={inputRef}
           type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            handleTyping();
+          }}
+          onKeyDown={handleKeyDown}
           placeholder="Type a message"
           className="flex-1 bg-transparent outline-none text-sm text-white placeholder-gray-400"
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
           onFocus={handleInputFocus}
         />
 
-        {/* ✅ SEND BUTTON */}
+        {/*  SEND BUTTON */}
         <button
           onClick={handleSend}
           className="ml-2 flex items-center justify-center w-9 h-9 rounded-full bg-[rgb(var(--color-active)/0.9)] hover:bg-[rgb(var(--color-active)/0.7)] text-white"

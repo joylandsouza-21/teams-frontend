@@ -1,0 +1,87 @@
+import { createContext, useContext, useEffect, useState } from "react";
+import socket from "../socket";
+import { useAuth } from "./auth.context";
+
+const SocketContext = createContext(null);
+
+export function SocketProvider({ children }) {
+  const { auth, logout } = useAuth(); // ✅ include logout if you have it
+  const [isSocketConnected, setIsSocketConnected] = useState(socket.connected);
+  const [socketError, setSocketError] = useState(null); // ✅ NEW
+
+  // ✅ HANDLE TOKEN → CONNECT / DISCONNECT
+  useEffect(() => {
+    if (auth?.token) {
+      socket.auth = {
+        token: auth.token,
+      };
+
+      console.log("🔐 Attaching token & connecting socket...");
+      console.log("SOCKET URL:", import.meta.env.VITE_SOCKET_URL);
+
+      if (!socket.connected) {
+        socket.connect();
+      }
+    } else {
+      if (socket.connected) {
+        socket.disconnect();
+      }
+    }
+  }, [auth?.token]);
+
+  // ✅ SOCKET LIFECYCLE + ERROR LISTENERS
+  useEffect(() => {
+    const onConnect = () => {
+      console.log("✅ Socket Connected");
+      setIsSocketConnected(true);
+      setSocketError(null);
+    };
+
+    const onDisconnect = (reason) => {
+      console.log("❌ Socket Disconnected:", reason);
+      setIsSocketConnected(false);
+    };
+
+    const onConnectError = (err) => {
+      console.error("❌ Socket connect_error:", err.message);
+      setSocketError(err.message);
+
+      // ✅ AUTO LOGOUT ON AUTH FAILURE
+      if (err.message === "INVALID_TOKEN" || err.message === "AUTH_REQUIRED") {
+        console.warn("🚨 Invalid token in socket, logging out...");
+        socket.disconnect();
+        logout?.(); // ✅ only if you have logout
+      }
+    };
+
+    const onError = (err) => {
+      console.error("❌ General Socket Error:", err);
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("connect_error", onConnectError);
+    socket.on("error", onError);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("connect_error", onConnectError);
+      socket.off("error", onError);
+    };
+  }, [logout]);
+
+  return (
+    <SocketContext.Provider
+      value={{
+        socket,
+        isSocketConnected,
+        socketError, // ✅ EXPOSE ERROR
+      }}
+    >
+      {children}
+    </SocketContext.Provider>
+  );
+}
+
+export const useSocket = () => useContext(SocketContext);
