@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
-import { Pencil, Trash2, Smile, Check, X } from "lucide-react";
+import { Pencil, Trash2, Smile, Check, X, Reply } from "lucide-react";
 import { useSocket } from "../../../../store/socket.context";
 
-export default function MessageBubble({ message, currentUserId }) {
+export default function MessageBubble({ message, currentUserId, setReplyingTo }) {
   const { socket } = useSocket();
   const isMe = Number(message.senderId) === Number(currentUserId);
 
@@ -100,6 +100,22 @@ export default function MessageBubble({ message, currentUserId }) {
     setIsEditing(false);
   };
 
+  const scrollToOriginal = (id) => {
+    const el = document.querySelector(`[data-msg-id="${id}"]`);
+    if (!el) return;
+
+    el.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    el.classList.add("ring-2", "ring-white-300");
+    setTimeout(() => {
+      el.classList.remove("ring-2", "ring-white-300");
+    }, 1200);
+  };
+
+
   // =========================
   // ✅ DELETED MESSAGE VIEW
   // =========================
@@ -120,6 +136,7 @@ export default function MessageBubble({ message, currentUserId }) {
         onMouseEnter={onBubbleEnter}
         onMouseLeave={onBubbleLeave}
         style={minWidthStyle}
+        data-msg-id={message._id}
         className={`max-w-[70%] min-w-20 px-4 py-2 rounded-2xl text-sm relative ${isMe
           ? "bg-[rgb(var(--color-active)/0.9)] text-white rounded-br-sm"
           : "bg-[#2b2b2b] text-white rounded-bl-sm"
@@ -130,7 +147,7 @@ export default function MessageBubble({ message, currentUserId }) {
           <div
             onMouseEnter={onToolbarEnter}
             onMouseLeave={onToolbarLeave}
-            className="absolute -top-8 right-1 flex gap-2 bg-black/90 px-2 py-1 rounded-lg text-xs z-20"
+            className="absolute -top-[26px] right-1 flex gap-2 bg-black/90 px-2 py-1 rounded-lg text-xs z-20"
           >
             <Smile
               size={14}
@@ -159,6 +176,13 @@ export default function MessageBubble({ message, currentUserId }) {
                 />
               </>
             )}
+            <Reply
+              size={14}
+              className="cursor-pointer hover:text-blue-400"
+              onClick={() => {
+                setReplyingTo(message)
+              }}
+            />
           </div>
         )}
 
@@ -167,7 +191,7 @@ export default function MessageBubble({ message, currentUserId }) {
           <div
             onMouseEnter={onReactionEnter}
             onMouseLeave={onReactionLeave}
-            className={`absolute -top-18 right-0 flex gap-2 bg-black px-3 py-2 rounded-lg text-sm z-30 ${isMe && 'flex-wrap'}`}
+            className={`absolute -top-16 right-0 flex gap-2 bg-black px-3 py-2 rounded-lg text-sm z-30 ${!isMe && 'flex-wrap'}`}
           >
             {["👍", "❤️", "😂", "😮", "🔥"].map((emoji) => (
               <button
@@ -208,6 +232,20 @@ export default function MessageBubble({ message, currentUserId }) {
           </div>
         ) : (
           <>
+            {/* ✅ REPLY PREVIEW (CLICKABLE) */}
+            {message.replyTo && message.replyPreview && (
+              <div
+                onClick={() => scrollToOriginal(message.replyTo)}
+                className={`mb-2 px-2 py-1 text-xs rounded cursor-pointer border-l-4 
+                  ${isMe ? "bg-black/30 border-white/40" : "bg-black/40 border-blue-400"}
+                `}
+              >
+                <div className="opacity-70 truncate max-w-[220px]">
+                  {message.replyPreview.content}
+                </div>
+              </div>
+            )}
+
             {/* ✅ MESSAGE TEXT */}
             <div className="whitespace-pre-wrap wrap-break-word">
               {message.content}

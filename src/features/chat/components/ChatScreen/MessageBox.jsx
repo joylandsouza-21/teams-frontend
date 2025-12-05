@@ -4,7 +4,7 @@ import { getMessageHistoryApi } from "../../../../api/message.api";
 import { useAuth } from "../../../../store/auth.context";
 import { useSocket } from "../../../../store/socket.context";
 
-export default function MessageBox({ activeChat, currentUserId }) {
+export default function MessageBox({ activeChat, currentUserId, setReplyingTo }) {
   const { auth } = useAuth();
   const { socket, isSocketConnected } = useSocket();
 
@@ -252,7 +252,7 @@ export default function MessageBox({ activeChat, currentUserId }) {
       )}
 
       {/* ✅ MESSAGE LIST */}
-      <ChatMessages messages={messages} currentUserId={currentUserId} />
+      <ChatMessages messages={messages} currentUserId={currentUserId} setReplyingTo={setReplyingTo}/>
 
       {/* ✅ TYPING INDICATOR */}
       {typingUsers.length > 0 && (

@@ -33,6 +33,7 @@ export default function ChatScreen({
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [newChatmemberSearch, setNewChatmemberSearch] = useState('');
   const [newChatMembers, setNewChatMembers] = useState([]);
+  const [replyingTo, setReplyingTo] = useState(null);
 
   const renameRef = useRef(null);
   const groupInfoRef = useRef(null);
@@ -161,6 +162,7 @@ export default function ChatScreen({
         <MessageBox 
           activeChat={activeChat} 
           currentUserId={currentUserId}
+          setReplyingTo={setReplyingTo}
         />
         <MessageInput
           setChats={setChats}
@@ -170,6 +172,8 @@ export default function ChatScreen({
           fetchAllConversations={fetchAllConversations}
           activeChat={activeChat}
           setNewChatMembers={setNewChatMembers}
+          replyingTo={replyingTo}
+          setReplyingTo={setReplyingTo}
         />
       </div>
     </div>
