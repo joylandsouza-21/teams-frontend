@@ -16,4 +16,8 @@ export const ENDPOINTS = {
   MESSAGE: {
     MESSAGE_HISTORY: (id) => `/messages/${id}/history`,
   },
+
+  FILES: {
+    UPLOAD: "/files/upload"
+  }
 };

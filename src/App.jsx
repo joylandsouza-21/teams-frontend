@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./store/auth.context";
 import { SocketProvider, useSocket } from "./store/socket.context";
+import { Toaster } from "sonner";
 
 import Chats from "./pages/dashboard/Chats";
 import Login from "./pages/auth/Login";
@@ -25,19 +26,33 @@ function AppRoutes() {
   }
 
   return (
-    <Routes>
-      {/* ✅ Default Route */}
-      <Route path="/" element={<Login />} />
+    <>
+      <Toaster
+        position="top-center"
+        richColors
+        theme="dark"
+        toastOptions={{
+          style: {
+            background: "#1f1f1f",
+            color: "#fff",
+            border: "1px solid #333",
+          },
+        }}
+      />
+      <Routes>
+        {/* ✅ Default Route */}
+        <Route path="/" element={<Login />} />
 
-      {/* ✅ Dashboard Routes */}
-      <Route element={<DashboardLayout />}>
-        <Route path="/chats" element={<Chats />} />
-        <Route path="/calls" element={<Calls />} />
-      </Route>
+        {/* ✅ Dashboard Routes */}
+        <Route element={<DashboardLayout />}>
+          <Route path="/chats" element={<Chats />} />
+          <Route path="/calls" element={<Calls />} />
+        </Route>
 
-      {/* ✅ Catch-All Route */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* ✅ Catch-All Route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
 

@@ -5,9 +5,10 @@ import { useAuth } from "./auth.context";
 const SocketContext = createContext(null);
 
 export function SocketProvider({ children }) {
-  const { auth, logout } = useAuth(); // ✅ include logout if you have it
+  const { auth, logout } = useAuth();
   const [isSocketConnected, setIsSocketConnected] = useState(socket.connected);
-  const [socketError, setSocketError] = useState(null); // ✅ NEW
+  const [socketError, setSocketError] = useState(null);
+  const [userStatuses, setUserStatuses] = useState({});
 
   // ✅ HANDLE TOKEN → CONNECT / DISCONNECT
   useEffect(() => {
@@ -28,6 +29,24 @@ export function SocketProvider({ children }) {
       }
     }
   }, [auth?.token]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const onPresence = ({ userId, status, inCall }) => {
+      setUserStatuses(prev => ({
+        ...prev,
+        [userId]: { status, inCall }
+      }));
+    };
+
+    socket.on("presence_update", onPresence);
+
+    return () => {
+      socket.off("presence_update", onPresence);
+    };
+  }, [socket]);
+
 
   // ✅ SOCKET LIFECYCLE + ERROR LISTENERS
   useEffect(() => {
@@ -76,7 +95,8 @@ export function SocketProvider({ children }) {
       value={{
         socket,
         isSocketConnected,
-        socketError, // ✅ EXPOSE ERROR
+        socketError, 
+        userStatuses
       }}
     >
       {children}

@@ -65,6 +65,11 @@ export default function MessageBox({ activeChat, currentUserId, setReplyingTo })
 
     return () => {
       isMounted = false;
+
+      socket.emit("leave_conversation", {
+        conversationId: activeChat.id,
+      });
+
       setMessages([]);
       setTypingUsers([]);
       setHasMore(true);
@@ -245,18 +250,23 @@ export default function MessageBox({ activeChat, currentUserId, setReplyingTo })
       )}
 
       {/* ✅ EMPTY STATE */}
-      {messages.length === 0 && !loadingMore && (
+      {messages.length === 0 && !loadingMore ? (
         <div className="h-full flex items-center justify-center text-gray-400 text-sm">
           No messages yet. Say hello 👋
         </div>
-      )}
+      ) :
+        <ChatMessages
+          messages={messages}
+          currentUserId={currentUserId}
+          setReplyingTo={setReplyingTo}
+          isGroup={activeChat?.type === 'group'}
+        />
+      }
 
-      {/* ✅ MESSAGE LIST */}
-      <ChatMessages messages={messages} currentUserId={currentUserId} setReplyingTo={setReplyingTo}/>
 
       {/* ✅ TYPING INDICATOR */}
       {typingUsers.length > 0 && (
-        <div className="sticky bottom-2 left-4 text-xs text-gray-400 animate-pulse">
+        <div className="sticky bottom-1 left-4 text-xs text-gray-400 animate-pulse">
           Someone is typing...
         </div>
       )}

@@ -16,7 +16,9 @@ import {
   File,
   X
 } from "lucide-react";
-
+import { uploadFilesApi } from "../../../../api/files.api";
+import { toastError, toastSuccess } from "../../../../utils/toast";
+// import { toastSuccess } from "../../utils/toast";
 
 const EMOJIS = ["😀", "😁", "😂", "🤣", "😊", "😍", "😎", "😢", "😡", "👍", "🙏", "🔥", "🎉", "❤️"];
 
@@ -61,15 +63,36 @@ export default function MessageInput({
   };
 
   //  Send Message
-  const handleSend = () => {
-    if (!text.trim()) return;
+  const handleSend = async () => {
+    // if (!text.trim()) return;
+
+    let uploadedFiles = [];
+
+    if (files.length > 0) {
+      try{
+        const res = await uploadFilesApi({
+          token: auth.token,
+          files,
+        });
+        uploadedFiles = res.data;
+      }catch(err){
+        console.log(err.response?.data, 'err.response?.data?')
+        toastError(err.response?.data?.msg || "Upload failed");
+        return
+      }
+
+    }
+
     socket.emit("send_message", {
       conversationId: activeChat.id,
       content: text.trim(),
-      replyTo: replyingTo?._id || null
+      replyTo: replyingTo?._id || null,
+      attachments: uploadedFiles,
     });
+
     if (replyingTo) setReplyingTo(null)
-    setText(""); //  clear input
+    setFiles([]);
+    setText("");
   };
 
   //  Enter to Send
