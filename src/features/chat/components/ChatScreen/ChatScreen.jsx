@@ -8,6 +8,8 @@ import RenameGroupForm from "./RenameGroupForm";
 import MemberInfoModal from "./MemberInfoModal";
 import NewChatTopHeader from "./NewChatTopHeader";
 import MessageBox from "./MessageBox";
+import { useGroupPresence } from "../../../../hooks/useGroupPresence";
+import { useSocket } from "../../../../store/socket.context";
 
 export default function ChatScreen({
   chats,
@@ -40,6 +42,8 @@ export default function ChatScreen({
   const addPeopleRef = useRef(null);
   const newCHatInputRef = useRef(null);
 
+  useGroupPresence(activeChat?.type === "group" ? activeChat.id : null);
+  
   useEffect(() => {
     if (!newChatMembers?.length) return;
 

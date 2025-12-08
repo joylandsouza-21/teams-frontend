@@ -33,10 +33,10 @@ export function SocketProvider({ children }) {
   useEffect(() => {
     if (!socket) return;
 
-    const onPresence = ({ userId, status, inCall }) => {
+    const onPresence = ({ userId, status, lastActive }) => {
       setUserStatuses(prev => ({
         ...prev,
-        [userId]: { status, inCall }
+        [userId]: { status, lastActive }
       }));
     };
 
@@ -95,7 +95,7 @@ export function SocketProvider({ children }) {
       value={{
         socket,
         isSocketConnected,
-        socketError, 
+        socketError,
         userStatuses
       }}
     >

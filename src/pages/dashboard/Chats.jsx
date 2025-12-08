@@ -6,6 +6,7 @@ import { useAuth } from "../../store/auth.context";
 import { getAllUsers } from "../../api/user.api";
 import { getConversationsApi } from "../../api/conversation.api";
 import { useSocket } from "../../store/socket.context";
+import { useDirectChatPresenceBulk } from "../../hooks/useDirectChatPresenceBulk";
 
 export default function Chats() {
   const { auth } = useAuth();
@@ -20,6 +21,8 @@ export default function Chats() {
   const [addNewChat, setAddNewChat] = useState(false);
   const [newChatDetails, setNewChatDetails] = useState(null);
   const [unreadCounts, setUnreadCounts] = useState({});
+
+  useDirectChatPresenceBulk(chats, currentUserId);
 
   useEffect(() => {
     if (!newChatDetails?.members) return;

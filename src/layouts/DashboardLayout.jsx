@@ -2,8 +2,10 @@ import { Navigate, Outlet } from "react-router-dom";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import Navbar from "../components/navigation/Navbar";
 import Sidebar from "../components/navigation/Sidebar";
+import usePresence from "../hooks/usePresence";
 
 export default function DashboardLayout() {
+    usePresence();
 
     return (
         <ProtectedRoute>
