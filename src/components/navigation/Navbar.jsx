@@ -6,25 +6,21 @@ import {
   Clock,
   MinusCircle,
   XCircle,
-  Circle
+  Circle,
+  Camera
 } from "lucide-react";
 import { useAuth } from "../../store/auth.context";
 import { useSocket } from "../../store/socket.context";
-
-const STATUS_OPTIONS = [
-  { key: "online", label: "Available", icon: <Check className="text-green-500" size={14} /> },
-  { key: "busy", label: "Busy", icon: <XCircle className="text-red-500" size={14} /> },
-  { key: "dnd", label: "Do not disturb", icon: <MinusCircle className="text-red-500" size={14} /> },
-  { key: "idle", label: "Be right back", icon: <Clock className="text-yellow-500" size={14} /> },
-  { key: "away", label: "Appear away", icon: <Clock className="text-yellow-400" size={14} /> },
-  { key: "offline", label: "Appear offline", icon: <Circle className="text-gray-400" size={12} /> },
-];
+import ProfileEditModal from "./ProfileEditModal";
+import { STATUS_OPTIONS } from "../../utils/statusConfig";
 
 export default function Navbar() {
   const { auth, logout } = useAuth();
   const { socket, userStatuses } = useSocket();
 
   const [open, setOpen] = useState(false);
+  const [openProfileEdit, setOpenProfileEdit] = useState(false);
+
   const menuRef = useRef();
 
   const myStatus = userStatuses?.[auth?.user?.id]?.status || "online";
@@ -59,7 +55,7 @@ export default function Navbar() {
         <button onClick={() => setOpen(p => !p)}>
           {auth?.user?.profile_pic ? (
             <img
-              src={auth.user.profile_pic}
+              src={`${import.meta.env.VITE_API_BASE_URL}${auth.user.profile_pic}`}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
@@ -75,14 +71,21 @@ export default function Navbar() {
 
             {/* ✅ USER INFO */}
             <div className="flex items-center gap-3 p-4 border-b border-gray-700">
-              {auth?.user?.profile_pic ? (
-                <img
-                  src={auth.user.profile_pic}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-              ) : (
-                <CircleUser size={44} />
-              )}
+              <div className="group relative">
+                {auth?.user?.profile_pic ? (
+                  <img
+                    src={`${import.meta.env.VITE_API_BASE_URL}${auth.user.profile_pic}`}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <CircleUser size={44} />
+                )}
+                <div className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-(--color-ter-background) cursor-pointer rounded-full">
+                  <Camera size={18} className="text-white" onClick={()=>setOpenProfileEdit(true)}/>
+                </div>
+              </div>
+
+              {openProfileEdit && <ProfileEditModal onClose={() => setOpenProfileEdit(false)} />}
 
               <div className="min-w-0">
                 <div className="text-sm font-semibold text-white truncate">
@@ -109,7 +112,7 @@ export default function Navbar() {
                     hover:bg-[#2b2b2b] transition
                     ${myStatus === s.key ? "bg-[#2b2b2b]" : ""}`}
                 >
-                  {s.icon}
+                  {s.icon({ size: 12 })}
                   <span className="flex-1 text-left">{s.label}</span>
                   {myStatus === s.key && <Check size={14} />}
                 </button>

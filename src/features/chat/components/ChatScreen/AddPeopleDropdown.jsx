@@ -1,3 +1,5 @@
+import { User } from "lucide-react";
+
 export default function AddPeopleDropdown({
   addPeopleRef,
   users,
@@ -73,15 +75,32 @@ export default function AddPeopleDropdown({
 
       {/* SEARCH RESULTS */}
       {search && (
-        <div className="mt-2 max-h-32 overflow-auto border border-gray-700 rounded">
+        <div className="mt-2 max-h-32 overflow-auto rounded">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
               <div
                 key={user?.id}
                 onClick={() => handleSelectUser(user)}
-                className="px-3 py-2 hover:bg-gray-700 cursor-pointer text-sm"
+                className="px-3 py-2 hover:bg-gray-700 cursor-pointer text-sm flex flex-row items-center gap-4 rounded-xl"
               >
-                {user?.name}
+                {
+                  user?.profile_pic ?
+                    (<img
+                      src={`${import.meta.env.VITE_API_BASE_URL}${user.profile_pic}`}
+                      alt="user"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />)
+                    :
+                    (
+                      <div className="bg-(--color-sec-background) p-2 rounded-full">
+                        <User size={18} />
+                      </div>
+                    )
+                }
+                <div>
+                  {user?.name}
+                </div>
+
               </div>
             ))
           ) : (
@@ -108,11 +127,10 @@ export default function AddPeopleDropdown({
         <button
           disabled={selectedUsers.length === 0}
           onClick={handleAddUsers}
-          className={`px-3 py-1 text-sm rounded text-white ${
-            selectedUsers.length > 0
-              ? "bg-[rgb(var(--color-active)/0.8)] hover:bg-[rgb(var(--color-active)/0.6)]"
-              : "bg-gray-600 cursor-not-allowed"
-          }`}
+          className={`px-3 py-1 text-sm rounded text-white ${selectedUsers.length > 0
+            ? "bg-[rgb(var(--color-active)/0.8)] hover:bg-[rgb(var(--color-active)/0.6)]"
+            : "bg-gray-600 cursor-not-allowed"
+            }`}
         >
           Add
         </button>

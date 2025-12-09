@@ -5,12 +5,14 @@ import { useAuth } from "../../store/auth.context";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
+  const { setAuth, auth } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  if (auth?.token) navigate("/chats");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,7 +33,7 @@ export default function Login() {
       setAuth(res);
 
       // ✅ redirect after login
-      navigate("/dashboard/chats");
+      navigate("/chats");
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {

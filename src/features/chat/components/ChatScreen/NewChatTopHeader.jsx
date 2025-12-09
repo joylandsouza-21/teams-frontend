@@ -11,9 +11,9 @@ export default function NewChatTopHeader({
 }) {
 
   const handleAddNewChatMembers = (item) => {
-        setNewChatmemberSearch('')
-        setNewChatMembers(prev => [...prev, item])
-    }
+    setNewChatmemberSearch('')
+    setNewChatMembers(prev => [...prev, item])
+  }
 
   return (
     <div className="flex flex-row gap-4 relative">
@@ -51,7 +51,7 @@ export default function NewChatTopHeader({
       </div>
       {newChatmemberSearch && (
         <div className="absolute z-50 bg-(--color-ter-background) p-4 w-full top-full mt-5 rounded-xl">
-          <div className="flex flex-col gap-2 overflow-auto max-h-90">
+          <div className="flex flex-col overflow-auto max-h-90">
             {(() => {
               if (!newChatmemberSearch) return null;
 
@@ -76,10 +76,23 @@ export default function NewChatTopHeader({
               return filteredUsers.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-row gap-4 hover:bg-gray-500 p-2 rounded-xl"
+                  className="flex flex-row gap-4 hover:bg-gray-500 p-2 rounded-xl items-center"
                   onClick={() => handleAddNewChatMembers(item)}
                 >
-                  <User />
+                  {
+                    item?.profile_pic ?
+                      (<img
+                        src={`${import.meta.env.VITE_API_BASE_URL}${item.profile_pic}`}
+                        alt="user"
+                        className="w-8 h-8 rounded-full object-cover"
+                      />)
+                      :
+                      (
+                        <div className="bg-(--color-sec-background) p-2 rounded-full">
+                          <User size={18} />
+                        </div>
+                      )
+                  }
                   {item.name}
                 </div>
               ));

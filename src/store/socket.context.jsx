@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import socket from "../socket";
 import { useAuth } from "./auth.context";
+import { getStatusByKey } from "../utils/statusConfig";
 
 const SocketContext = createContext(null);
 
@@ -90,13 +91,40 @@ export function SocketProvider({ children }) {
     };
   }, [logout]);
 
+
+  const getStatusById = (userId) => {
+    try {
+      if (!userId) {
+        return getStatusByKey("offline");
+      }
+
+      if (!userStatuses || typeof userStatuses !== "object") {
+        return getStatusByKey("offline");
+      }
+
+      const userStatus = userStatuses[userId];
+
+      if (!userStatus || !userStatus.status) {
+        return getStatusByKey("offline");
+      }
+
+      return getStatusByKey(userStatus.status) || getStatusByKey("offline");
+    } catch (error) {
+      console.error("getStatusById error:", error);
+      return getStatusByKey("offline");
+    }
+  };
+
+
+
   return (
     <SocketContext.Provider
       value={{
         socket,
         isSocketConnected,
         socketError,
-        userStatuses
+        userStatuses,
+        getStatusById
       }}
     >
       {children}

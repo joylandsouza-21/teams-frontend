@@ -1,7 +1,8 @@
 export const ENDPOINTS = {
   AUTH: {
     LOGIN: "/auth/login",
-    ALL_USERS: "auth/users"
+    ALL_USERS: "auth/users",
+    UPDATE_USER: "auth/update_profile"
   },
 
   CONVERSATION: {

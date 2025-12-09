@@ -69,6 +69,7 @@ export default function ChatSidebar({
                 item={item}
                 label={label}
                 isActive={isActive}
+                currentUserId={currentUserId}
                 unreadCount={unreadCounts[item.id]}
                 onClick={() => {
                   setActiveChat(item)
