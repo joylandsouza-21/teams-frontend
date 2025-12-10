@@ -7,7 +7,8 @@ import {
   MinusCircle,
   XCircle,
   Circle,
-  Camera
+  Camera,
+  User
 } from "lucide-react";
 import { useAuth } from "../../store/auth.context";
 import { useSocket } from "../../store/socket.context";
@@ -16,7 +17,7 @@ import { STATUS_OPTIONS } from "../../utils/statusConfig";
 
 export default function Navbar() {
   const { auth, logout } = useAuth();
-  const { socket, userStatuses } = useSocket();
+  const { socket, userStatuses, getStatusById } = useSocket();
 
   const [open, setOpen] = useState(false);
   const [openProfileEdit, setOpenProfileEdit] = useState(false);
@@ -43,6 +44,8 @@ export default function Navbar() {
     setOpen(false);
   };
 
+  const status = getStatusById(auth?.user?.id)
+
   return (
     <div className="w-screen h-12 bg-(--color-primary-background)
         border-b border-(--border-primary-color)
@@ -51,17 +54,25 @@ export default function Navbar() {
       <Feather size={28} />
 
       {/* ✅ PROFILE ICON */}
-      <div ref={menuRef} className="relative">
-        <button onClick={() => setOpen(p => !p)}>
+      <div ref={menuRef} className="relative flex">
+        <button onClick={() => setOpen(p => !p)} className="cursor-pointer">
           {auth?.user?.profile_pic ? (
             <img
               src={`${import.meta.env.VITE_API_BASE_URL}${auth.user.profile_pic}`}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-            <CircleUser size={30} />
+            <div className="bg-(--color-sec-background) p-2 rounded-full">
+              <User
+                size={20}
+              />
+            </div>
           )}
         </button>
+
+        <div className="absolute -bottom-0.5 left-6 bg-[#1f1f1f] rounded-full">
+          {status?.icon({ size: 11 })}
+        </div>
 
         {/* ✅ DROPDOWN */}
         {open && (
@@ -78,10 +89,14 @@ export default function Navbar() {
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (
-                  <CircleUser size={44} />
+                  <div className="bg-(--color-ter-background) p-2 rounded-full">
+                    <User
+                      size={34}
+                    />
+                  </div>
                 )}
                 <div className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-(--color-ter-background) cursor-pointer rounded-full">
-                  <Camera size={18} className="text-white" onClick={()=>setOpenProfileEdit(true)}/>
+                  <Camera size={18} className="text-white" onClick={() => setOpenProfileEdit(true)} />
                 </div>
               </div>
 

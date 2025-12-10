@@ -21,7 +21,7 @@ export default function MemberInfoModal({
     return (
         <div
             ref={groupInfoRef}
-            className="absolute top-[63px] right-1 z-50 p-4 flex flex-col gap-2 bg-(--color-ter-background) w-50 rounded-xl"
+            className="absolute top-[62px] right-2 z-50 p-4 flex flex-col gap-2 bg-(--color-ter-background) w-50 rounded-xl"
         >
             <span className="text-xs font-bold opacity-50">
                 People ({activeChat?.members?.length || 0})

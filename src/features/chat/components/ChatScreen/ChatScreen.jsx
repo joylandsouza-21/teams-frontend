@@ -72,6 +72,7 @@ export default function ChatScreen({
       };
       setNewChatDetails({ ...chatData });
       setActiveChat({ ...chatData });
+      console.log('here')
     }
 
   }, [newChatMembers?.length]);
@@ -94,15 +95,6 @@ export default function ChatScreen({
     newCHatInputRef.current?.focus();
   }, [addNewChat]);
 
-  const handleGroupNameUpdate = async () => {
-    const res = await updateConversationApi({
-      token: auth?.token,
-      conversationId: activeChat?.id,
-      body: { name: newName }
-    });
-    if (res?.status === 200) fetchAllConversations();
-  };
-
   const handleAddNewUsers = async () => {
     if (activeChat.type === 'direct') {
       await convertToGroupChatApi({
@@ -122,63 +114,77 @@ export default function ChatScreen({
 
   return (
     <div className="p-2 w-full h-full">
+      
       <div className="h-full w-full bg-(--color-sec-background) rounded-2xl overflow-hidden">
-
-        <div className={`bg-(--color-ter-background) w-full px-4 py-4 relative ${addNewChat && 'border-b-2 border-[rgb(var(--color-active))]'}`}>
-          {addNewChat ? (
-            <NewChatTopHeader
-              users={users}
-              currentUserId={currentUserId}
-              newChatMembers={newChatMembers}
-              setNewChatMembers={setNewChatMembers}
-              newChatmemberSearch={newChatmemberSearch}
-              setNewChatmemberSearch={setNewChatmemberSearch}
-              newCHatInputRef={newCHatInputRef}
-            />
-          ) : (
+        {
+          activeChat || addNewChat ?
+          (
             <>
-              <TopHeader {...{ activeChat, activeChatLabel, isRenaming, setIsRenaming, isGroupInfo, setGroupInfo }} />
-              {isRenaming && (
-                <RenameGroupForm {...{ renameRef, newName, setNewName, handleGroupNameUpdate, setIsRenaming, activeChat, fetchAllConversations }} />
-              )}
-              {isGroupInfo && (
-                <MemberInfoModal
-                  {...{
-                    groupInfoRef,
-                    addPeopleRef,
-                    isAddPeople,
-                    setIsAddPeople,
-                    users,
-                    activeChat,
-                    currentUserId,
-                    selectedUsers,
-                    setSelectedUsers,
-                    search,
-                    setSearch,
-                    handleAddNewUsers
-                  }}
+            <div className={`bg-(--color-ter-background) w-full px-2 py-2 relative ${addNewChat && 'border-b-2 border-[rgb(var(--color-active))]'}`}>
+              {addNewChat ? (
+                <NewChatTopHeader
+                  users={users}
+                  currentUserId={currentUserId}
+                  newChatMembers={newChatMembers}
+                  setNewChatMembers={setNewChatMembers}
+                  newChatmemberSearch={newChatmemberSearch}
+                  setNewChatmemberSearch={setNewChatmemberSearch}
+                  newCHatInputRef={newCHatInputRef}
                 />
+              ) : (
+                <>
+                  <TopHeader {...{ activeChat, activeChatLabel, isRenaming, setIsRenaming, isGroupInfo, setGroupInfo, currentUserId }} />
+                  {isRenaming && (
+                    <RenameGroupForm {...{ renameRef, newName, setNewName, setIsRenaming, activeChat }} />
+                  )}
+                  {isGroupInfo && (
+                    <MemberInfoModal
+                      {...{
+                        groupInfoRef,
+                        addPeopleRef,
+                        isAddPeople,
+                        setIsAddPeople,
+                        users,
+                        activeChat,
+                        currentUserId,
+                        selectedUsers,
+                        setSelectedUsers,
+                        search,
+                        setSearch,
+                        handleAddNewUsers
+                      }}
+                    />
+                  )}
+                </>
               )}
+            </div>
+    
+            <MessageBox 
+              activeChat={activeChat} 
+              currentUserId={currentUserId}
+              setReplyingTo={setReplyingTo}
+            />
+            <MessageInput
+              setChats={setChats}
+              newChatDetails={newChatDetails}
+              setAddNewChat={setAddNewChat}
+              setNewChatDetails={setNewChatDetails}
+              fetchAllConversations={fetchAllConversations}
+              activeChat={activeChat}
+              setNewChatMembers={setNewChatMembers}
+              replyingTo={replyingTo}
+              setReplyingTo={setReplyingTo}
+            />
             </>
-          )}
-        </div>
+          )
+          :
+          (
+            <div className="h-full w-full flex items-center justify-center opacity-50">
+              No Conversations
+            </div>
+          )
+        }
 
-        <MessageBox 
-          activeChat={activeChat} 
-          currentUserId={currentUserId}
-          setReplyingTo={setReplyingTo}
-        />
-        <MessageInput
-          setChats={setChats}
-          newChatDetails={newChatDetails}
-          setAddNewChat={setAddNewChat}
-          setNewChatDetails={setNewChatDetails}
-          fetchAllConversations={fetchAllConversations}
-          activeChat={activeChat}
-          setNewChatMembers={setNewChatMembers}
-          replyingTo={replyingTo}
-          setReplyingTo={setReplyingTo}
-        />
       </div>
     </div>
   );

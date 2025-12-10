@@ -42,7 +42,7 @@ export default function ChatSidebar({
       </div>
 
       {/* Chat List */}
-      <div className="flex-1 px-3 py-2 space-y-2 max-h-full overflow-auto">
+      <div className="flex-1 px-3 py-2 space-y-2 max-h-full overflow-auto w-52">
         {
           newChatDetails &&
           <ChatListItem
@@ -62,7 +62,7 @@ export default function ChatSidebar({
             const label = generateChatLable(item, currentUserId)
 
             const isActive = activeChat?.id === item.id;
-            
+
             return (
               <ChatListItem
                 key={item.id}
@@ -83,9 +83,14 @@ export default function ChatSidebar({
             );
           })
         ) : (
-          <div className="h-full text-gray-400 flex justify-center items-center">
-            No Chats
-          </div>
+          <>
+            {
+              !newChatDetails &&
+              <div className="h-full text-gray-400 flex justify-center items-center">
+                No Chats
+              </div>
+            }
+          </>
         )}
       </div>
     </div>

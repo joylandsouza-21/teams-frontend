@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import ChatScreen from "../../features/chat/components/ChatScreen/ChatScreen";
 import ChatSidebar from "../../features/chat/components/ChatSidebar";
 import { generateChatLable } from "../../features/chat/utils/ChatListUtils";
@@ -96,8 +96,6 @@ export default function Chats() {
 
   useEffect(() => {
     if (!chats?.length) {
-      setActiveChat(null);
-      setActiveChatLabel(null)
       return;
     }
 
@@ -106,22 +104,21 @@ export default function Chats() {
         const newActiveChat = chats.find(item => item.type === activeChat.type && areSameMembers(item.members, activeChat.members, currentUserId))
         if (newActiveChat) {
           setActiveChat(newActiveChat)
-          setActiveChatLabel(generateChatLable(newActiveChat, currentUserId))
           return
         }
       }
     } else {
       setActiveChat(chats?.[0])
-      setActiveChatLabel(generateChatLable(chats?.[0], currentUserId))
     }
   }, [chats, activeChat?.id, currentUserId])
 
   useEffect(() => {
-    if (!socket) return;
+    if (!activeChat) return
+    setActiveChatLabel(generateChatLable(activeChat, currentUserId))
+  }, [activeChat, currentUserId])
 
-    const onNewChat = ({ conversationId }) => {
-      fetchAllConversations();
-    };
+  useEffect(() => {
+    if (!socket) return;
 
     const onNewBackgroundMessage = ({
       conversationId,
@@ -136,11 +133,42 @@ export default function Chats() {
       }
     }
 
-    socket.on("refresh_chat", onNewChat);
+    const onChatUpdate = ({ chat }) => {
+      setChats(prevChats => {
+        if (!Array.isArray(prevChats)) {
+          // ✅ Also sync active chat safely
+          setActiveChat(prev =>
+            prev?.id === chat.id ? chat : prev
+          );
+          return [chat];
+        }
+
+        const index = prevChats.findIndex(c => c.id === chat.id);
+
+        // ✅ If chat already exists → update it
+        if (index !== -1) {
+          const updated = [...prevChats];
+          const mergedChat = { ...prevChats[index], ...chat };
+          updated[index] = mergedChat;
+
+          // ✅ Sync active chat using the merged object (not raw payload)
+          setActiveChat(prev =>
+            prev?.id === chat.id ? mergedChat : prev
+          );
+
+          return updated;
+        }
+
+        // ✅ If it's a new chat → add it to the top
+        return [chat, ...prevChats];
+      });
+    };
+
+    socket.on("chat_update", onChatUpdate);
     socket.on("background_message", onNewBackgroundMessage);
 
     return () => {
-      socket.off("refresh_chat", onNewChat);
+      socket.off("chat_update", onChatUpdate);
       socket.off("background_message", onNewBackgroundMessage);
     };
   }, [socket, activeChat?.id, fetchAllConversations]);

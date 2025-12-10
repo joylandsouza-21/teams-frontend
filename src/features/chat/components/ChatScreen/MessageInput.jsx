@@ -27,7 +27,6 @@ export default function MessageInput({
   newChatDetails,
   setAddNewChat,
   setNewChatDetails,
-  fetchAllConversations,
   activeChat,
   setNewChatMembers,
   replyingTo,
@@ -196,10 +195,6 @@ export default function MessageInput({
           token: auth.token,
           body
         });
-      }
-
-      if (res?.status === 200 || res?.status === 201) {
-        await fetchAllConversations();
       }
 
     } catch (err) {

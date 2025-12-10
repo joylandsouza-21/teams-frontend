@@ -54,14 +54,14 @@ export const addmembersToGroupChatApi = ({ token, conversationId, body }) => {
   );
 };
 
-export const updateConversationApi = ({ token, conversationId, body }) => {
+export const updateConversationApi = ({ token, conversationId, formData }) => {
   return api.post(
     ENDPOINTS.CONVERSATION.UPDATE_CONVERSATION(conversationId),
-    body,
+    formData,
     {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data"
       },
     }
   );

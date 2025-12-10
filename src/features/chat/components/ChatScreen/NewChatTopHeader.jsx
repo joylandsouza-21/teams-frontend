@@ -16,7 +16,7 @@ export default function NewChatTopHeader({
   }
 
   return (
-    <div className="flex flex-row gap-4 relative">
+    <div className="flex flex-row gap-4 relative py-1.5">
       <div>To:</div>
       <div className="flex flex-row flex-wrap gap-2 pr-2 w-full">
         {newChatMembers.map((item) => {

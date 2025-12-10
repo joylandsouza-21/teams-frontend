@@ -1,6 +1,7 @@
 import { User, Users } from "lucide-react";
 import { useSocket } from "../../../store/socket.context";
 import { getStatusByKey } from "../../../utils/statusConfig";
+import { truncateText } from "../../../utils/common";
 
 export default function ChatListItem({
   item,
@@ -60,16 +61,31 @@ export default function ChatListItem({
             </div>
           </div>
         ) : (
-          <div className="bg-(--color-ter-background) p-2 rounded-full">
-            <Users
-              className={isActive ? "" : "text-gray-300"}
-              size={18}
-            />
+          <div>
+            {
+              item?.image ?
+                (
+                  <img
+                    src={`${import.meta.env.VITE_API_BASE_URL}${item.image}`}
+                    alt="user"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                )
+                :
+                (
+                  <div className="bg-(--color-ter-background) p-2 rounded-full">
+                    <Users
+                      className={isActive ? "" : "text-gray-300"}
+                      size={18}
+                    />
+                  </div>
+                )
+            }
           </div>
         )}
 
         {/* ✅ Label */}
-        <span className="text-sm truncate">{label}</span>
+        <span className="text-sm truncate">{truncateText(label, 18)}</span>
       </div>
 
       {/* ✅ Unread Badge */}

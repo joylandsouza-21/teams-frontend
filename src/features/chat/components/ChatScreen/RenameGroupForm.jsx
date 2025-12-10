@@ -7,15 +7,11 @@ export default function RenameGroupForm({
   setNewName,
   setIsRenaming,
   activeChat,
-  fetchAllConversations
 }) {
   const { auth } = useAuth();
 
   const handleGroupNameUpdate = async () => {
-    const res = await updateConversationApi({ token: auth?.token, conversationId: activeChat?.id, body: { name: newName } })
-    if (res?.status === 200) {
-      fetchAllConversations()
-    }
+    await updateConversationApi({ token: auth?.token, conversationId: activeChat?.id, formData: { name: newName } })
   }
 
   const handleRenameSubmit = (e) => {
@@ -29,7 +25,7 @@ export default function RenameGroupForm({
     <div
       ref={renameRef}
       onKeyDown={(e) => e.key === "Enter" && handleRenameSubmit(e)}
-      className="px-4 py-3 flex gap-2 items-center absolute top-16 left-1 rounded-xl z-50 bg-(--color-ter-background)"
+      className="px-4 py-3 flex gap-2 items-center absolute top-16 left-2 rounded-xl z-50 bg-(--color-ter-background)"
     >
       <input
         type="text"
@@ -38,6 +34,7 @@ export default function RenameGroupForm({
         className="bg-transparent border border-gray-500 px-3 py-1 rounded text-sm w-60 outline-none"
         placeholder="Enter new group name"
         autoFocus
+        maxLength={30}
       />
 
       <button
