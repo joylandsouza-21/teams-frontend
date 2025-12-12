@@ -72,7 +72,6 @@ export default function ChatScreen({
       };
       setNewChatDetails({ ...chatData });
       setActiveChat({ ...chatData });
-      console.log('here')
     }
 
   }, [newChatMembers?.length]);

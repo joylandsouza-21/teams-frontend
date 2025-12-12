@@ -75,7 +75,6 @@ export default function MessageInput({
         });
         uploadedFiles = res.data;
       }catch(err){
-        console.log(err.response?.data, 'err.response?.data?')
         toastError(err.response?.data?.msg || "Upload failed");
         return
       }

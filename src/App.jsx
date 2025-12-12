@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./store/auth.context";
 import { SocketProvider, useSocket } from "./store/socket.context";
 import { Toaster } from "sonner";
@@ -7,23 +7,84 @@ import Chats from "./pages/dashboard/Chats";
 import Login from "./pages/auth/Login";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Calls from "./pages/dashboard/Calls";
+import IncomingCallCard from "./features/calls/components/IncomingCallCard";
+import { useEffect, useState } from "react";
+import { subscribeForPush } from "./utils/notifications";
+import { savePushNotificationApi } from "./api/push.api";
+import { toastError } from "./utils/toast";
 
 function AppRoutes() {
-  const { isSocketConnected } = useSocket();
+  const { socket } = useSocket();
   const { auth } = useAuth();
+  const navigate = useNavigate();
 
-  if (auth?.token && !isSocketConnected) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-black text-white">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin h-8 w-8 border-4 border-white border-t-transparent rounded-full" />
-          <p className="text-sm text-gray-400">
-            Connecting to chat server...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const [incomingCall, setIncomingCall] = useState(null);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    // 🔔 Incoming call event from backend
+    socket.on("incoming_call", (data) => {
+      console.log("Incoming call:", data);
+      setIncomingCall(data);
+    });
+
+    return () => socket.off("incoming_call");
+  }, [socket]);
+
+  // Accept
+  const handleAccept = () => {
+    window.open(`/call/${incomingCall.callId}`, "_blank");
+    setIncomingCall(null);
+  };
+
+  // Reject
+  const handleReject = () => {
+    socket.emit("reject_call", { callId: incomingCall.callId });
+    setIncomingCall(null);
+  };
+
+  useEffect(() => {
+    async function setupPush() {
+      try {
+        if (!auth?.token) return;
+
+        const sub = await subscribeForPush();
+        if (!sub) return;
+
+        const existing = JSON.parse(localStorage.getItem("push_sub"));
+
+        // ⛔ If subscription is the same, do NOT update backend
+        if (existing && JSON.stringify(existing) === JSON.stringify(sub)) {
+          console.log("Push subscription unchanged — skipping API call");
+          return;
+        }
+
+        // ✅ Save to backend
+        await savePushNotificationApi({
+          token: auth?.token,
+          body: { subscription: sub }
+        });
+
+        // Save locally
+        localStorage.setItem("push_sub", JSON.stringify(sub));
+
+      } catch (err) {
+        console.error("Push setup error:", err);
+
+        const msg =
+          err?.response?.data?.error ||
+          err?.message ||
+          "Failed to enable call notifications";
+
+        toastError(msg);
+      }
+    }
+
+    setupPush();
+  }, [auth?.token]);
+
+
 
   return (
     <>
@@ -42,16 +103,23 @@ function AppRoutes() {
       <Routes>
         {/* ✅ Default Route */}
         <Route path="/" element={<Login />} />
+        <Route path="/call/:callId" element={<Calls />} />
 
         {/* ✅ Dashboard Routes */}
         <Route element={<DashboardLayout />}>
           <Route path="/chats" element={<Chats />} />
-          <Route path="/calls" element={<Calls />} />
         </Route>
 
         {/* ✅ Catch-All Route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {incomingCall && (
+        <IncomingCallCard
+          {...incomingCall}
+          onAccept={handleAccept}
+          onReject={handleReject}
+        />
+      )}
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginApi } from "../../services/auth.service";
 import { useAuth } from "../../store/auth.context";
@@ -12,7 +12,11 @@ export default function Login() {
     password: "",
   });
 
-  if (auth?.token) navigate("/chats");
+  // useEffect(() => {
+  //   if (auth?.token) {
+  //     navigate("/chats");
+  //   }
+  // }, [auth, navigate]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

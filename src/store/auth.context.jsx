@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { deletePushNotificationApi } from "../api/push.api";
 
 const AuthContext = createContext(null);
 
@@ -18,8 +19,10 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const logout = () => {
-    localStorage.setItem("userData", null)
+  const logout = async () => {
+    await deletePushNotificationApi(auth?.token)
+    localStorage.removeItem("userData")
+    localStorage.removeItem("push_sub");
     setAuth(null)
     navigate("/");
   }

@@ -34,7 +34,7 @@ export default function Sidebar() {
       </NavLink>
 
       {/* ✅ CALLS */}
-      <NavLink
+      {/* <NavLink
         to="/calls"
         className={({ isActive }) =>
           `flex flex-col items-center gap-1 p-2 relative transition
@@ -59,7 +59,7 @@ export default function Sidebar() {
             <span className="text-[10px] leading-none">Calls</span>
           </>
         )}
-      </NavLink>
+      </NavLink> */}
 
     </div>
   );

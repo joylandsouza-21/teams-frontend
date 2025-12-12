@@ -135,14 +135,6 @@ export default function Chats() {
 
     const onChatUpdate = ({ chat }) => {
       setChats(prevChats => {
-        if (!Array.isArray(prevChats)) {
-          // ✅ Also sync active chat safely
-          setActiveChat(prev =>
-            prev?.id === chat.id ? chat : prev
-          );
-          return [chat];
-        }
-
         const index = prevChats.findIndex(c => c.id === chat.id);
 
         // ✅ If chat already exists → update it
@@ -164,10 +156,20 @@ export default function Chats() {
       });
     };
 
+    const onChatRemove = ({ conversationId }) => {
+      setChats(prev => {
+        if (!Array.isArray(prev)) return prev;
+        return prev.filter(chat => chat.id !== conversationId);
+      });
+      setActiveChat(null)
+    }
+
+    socket.on("chat_removed", onChatRemove);
     socket.on("chat_update", onChatUpdate);
     socket.on("background_message", onNewBackgroundMessage);
 
     return () => {
+      socket.off("chat_removed", onChatRemove);
       socket.off("chat_update", onChatUpdate);
       socket.off("background_message", onNewBackgroundMessage);
     };

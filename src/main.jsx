@@ -3,6 +3,15 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './index.css'
+import '@livekit/components-styles';
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js")
+      .then(() => console.log("SW registered"))
+      .catch(err => console.log("SW registration failed", err));
+  });
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>

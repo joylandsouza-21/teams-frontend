@@ -42,3 +42,21 @@ body{
   scrollbar-width: thin;
   scrollbar-color: #555 #1f1f1f;
 }
+
+
+/* incoming call card */
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s ease-out;
+}

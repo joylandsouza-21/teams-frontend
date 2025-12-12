@@ -54,6 +54,18 @@ export const addmembersToGroupChatApi = ({ token, conversationId, body }) => {
   );
 };
 
+export const removeMemberFromGroupChatApi = ({ token, conversationId, memberId }) => {
+  return api.delete(
+    ENDPOINTS.CONVERSATION.REMOVE_MEMEBERS_FROM_CONVERSATION(conversationId, memberId),
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
 export const updateConversationApi = ({ token, conversationId, formData }) => {
   return api.post(
     ENDPOINTS.CONVERSATION.UPDATE_CONVERSATION(conversationId),

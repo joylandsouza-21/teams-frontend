@@ -12,6 +12,7 @@ export const ENDPOINTS = {
     CONVERT_TO_GROUP: (id) => `/conversations/${id}/convert-to-group`,
     ADD_MEMBERS_TO_GROUP: (id) => `/conversations/${id}/members`,
     UPDATE_CONVERSATION: (id) => `/conversations/${id}/update`,
+    REMOVE_MEMEBERS_FROM_CONVERSATION: (conversationId, memberId) => `/conversations/${conversationId}/members/${memberId}`,
   },
 
   MESSAGE: {
@@ -20,5 +21,17 @@ export const ENDPOINTS = {
 
   FILES: {
     UPLOAD: "/files/upload"
+  },
+  CALL: {
+    START: "/calls/start",
+    JOIN: "/calls/join",
+    END: "/calls/end",
+    REJECT: "/calls/reject",
+    CANCEL: "/calls/cancel",
+  },
+  PUSH: {
+    SAVE: "/push/save-subscription",
+    GET: "/push/subscriptions",
+    DELETE: "/push/subscription",
   }
 };

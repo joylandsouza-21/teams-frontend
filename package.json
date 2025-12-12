@@ -10,8 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@livekit/components-react": "^2.9.17",
+    "@livekit/components-styles": "^1.2.0",
     "@tailwindcss/postcss": "^4.1.17",
     "axios": "^1.13.2",
+    "livekit-client": "^2.16.1",
+    "livekit-server-sdk": "^2.15.0",
     "lucide-react": "^0.555.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
